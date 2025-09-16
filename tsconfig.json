@@ -1,0 +1,19 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@ms5/*": ["./libs/*/src"],
+      "@ms5/shared/*": ["./libs/shared/src/*"]
+    }
+  },
+  "include": [
+    "apps/**/*.ts",
+    "apps/**/*.tsx",
+    "services/**/*.ts",
+    "libs/**/*.ts",
+    "tests/**/*.ts",
+    "__tests__/**/*.ts"
+  ],
+  "exclude": ["node_modules", "dist", "build", "*.config.js", "*.config.ts"]
+}

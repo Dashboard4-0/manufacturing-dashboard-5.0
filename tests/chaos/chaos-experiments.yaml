@@ -1,0 +1,420 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: Workflow
+metadata:
+  name: ms5-chaos-experiments
+  namespace: ms5
+spec:
+  entry: entry
+  templates:
+    - name: entry
+      templateType: Serial
+      deadline: 4h
+      children:
+        - network-chaos
+        - pod-chaos
+        - stress-chaos
+        - time-chaos
+
+    # Network Chaos Experiments
+    - name: network-chaos
+      templateType: Serial
+      children:
+        - network-delay
+        - network-loss
+        - network-partition
+
+    - name: network-delay
+      templateType: NetworkChaos
+      deadline: 10m
+      networkChaos:
+        selector:
+          namespaces:
+            - ms5
+          labelSelectors:
+            app: ms5-gateway
+        mode: all
+        action: delay
+        delay:
+          latency: "200ms"
+          jitter: "50ms"
+          correlation: "25"
+
+    - name: network-loss
+      templateType: NetworkChaos
+      deadline: 10m
+      networkChaos:
+        selector:
+          namespaces:
+            - ms5
+          labelSelectors:
+            app: dms-service
+        mode: all
+        action: loss
+        loss:
+          loss: "10"
+          correlation: "25"
+
+    - name: network-partition
+      templateType: NetworkChaos
+      deadline: 10m
+      networkChaos:
+        selector:
+          namespaces:
+            - ms5
+          labelSelectors:
+            app: loss-analytics-service
+        mode: all
+        action: partition
+        direction: both
+        target:
+          selector:
+            namespaces:
+              - ms5
+            labelSelectors:
+              app: postgres
+
+    # Pod Chaos Experiments
+    - name: pod-chaos
+      templateType: Serial
+      children:
+        - pod-kill
+        - pod-failure
+        - container-kill
+
+    - name: pod-kill
+      templateType: PodChaos
+      deadline: 5m
+      podChaos:
+        selector:
+          namespaces:
+            - ms5
+          labelSelectors:
+            app: ms5-gateway
+        mode: one
+        action: pod-kill
+        gracePeriod: 0
+
+    - name: pod-failure
+      templateType: PodChaos
+      deadline: 10m
+      podChaos:
+        selector:
+          namespaces:
+            - ms5
+          labelSelectors:
+            app: dms-service
+        mode: fixed
+        value: "2"
+        action: pod-failure
+        duration: "30s"
+
+    - name: container-kill
+      templateType: PodChaos
+      deadline: 5m
+      podChaos:
+        selector:
+          namespaces:
+            - ms5
+          labelSelectors:
+            app: edge-gateway
+        mode: all
+        action: container-kill
+        containerNames:
+          - edge-gateway
+
+    # Stress Chaos Experiments
+    - name: stress-chaos
+      templateType: Serial
+      children:
+        - cpu-stress
+        - memory-stress
+        - io-stress
+
+    - name: cpu-stress
+      templateType: StressChaos
+      deadline: 10m
+      stressChaos:
+        selector:
+          namespaces:
+            - ms5
+          labelSelectors:
+            app: loss-analytics-service
+        mode: all
+        stressors:
+          cpu:
+            workers: 4
+            load: 80
+
+    - name: memory-stress
+      templateType: StressChaos
+      deadline: 10m
+      stressChaos:
+        selector:
+          namespaces:
+            - ms5
+          labelSelectors:
+            app: ms5-gateway
+        mode: all
+        stressors:
+          memory:
+            workers: 4
+            size: "512Mi"
+
+    - name: io-stress
+      templateType: IOChaos
+      deadline: 10m
+      ioChaos:
+        selector:
+          namespaces:
+            - ms5
+          labelSelectors:
+            app: postgres
+        mode: all
+        action: latency
+        delay: "100ms"
+        percent: 50
+        path: "/var/lib/postgresql/data/*"
+
+    # Time Chaos Experiments
+    - name: time-chaos
+      templateType: TimeChaos
+      deadline: 10m
+      timeChaos:
+        selector:
+          namespaces:
+            - ms5
+          labelSelectors:
+            app: dms-service
+        mode: all
+        timeOffset: "+2h"
+
+---
+apiVersion: chaos-mesh.org/v1alpha1
+kind: Schedule
+metadata:
+  name: ms5-daily-chaos
+  namespace: ms5
+spec:
+  schedule: "@daily"
+  type: NetworkChaos
+  networkChaos:
+    selector:
+      namespaces:
+        - ms5
+      labelSelectors:
+        chaos: "true"
+    mode: all
+    action: delay
+    delay:
+      latency: "100ms"
+      jitter: "10ms"
+    duration: "30m"
+
+---
+# Litmus Chaos Experiments for Edge Infrastructure
+apiVersion: litmuschaos.io/v1alpha1
+kind: ChaosEngine
+metadata:
+  name: edge-chaos
+  namespace: ms5
+spec:
+  engineState: "active"
+  chaosServiceAccount: litmus-admin
+  experiments:
+    - name: node-cpu-hog
+      spec:
+        components:
+          env:
+            - name: NODE_CPU_CORE
+              value: "2"
+            - name: TOTAL_CHAOS_DURATION
+              value: "300"
+            - name: NODE_LABEL
+              value: "edge-node=true"
+
+    - name: node-memory-hog
+      spec:
+        components:
+          env:
+            - name: MEMORY_CONSUMPTION
+              value: "2048"
+            - name: TOTAL_CHAOS_DURATION
+              value: "300"
+
+    - name: disk-fill
+      spec:
+        components:
+          env:
+            - name: FILL_SIZE
+              value: "10G"
+            - name: TARGET_PATH
+              value: "/var/log"
+            - name: TOTAL_CHAOS_DURATION
+              value: "300"
+
+    - name: pod-network-corruption
+      spec:
+        components:
+          env:
+            - name: TARGET_SERVICE_PORT
+              value: "3000"
+            - name: NETWORK_INTERFACE
+              value: "eth0"
+            - name: CORRUPTION_PERCENTAGE
+              value: "10"
+
+---
+# Custom Chaos Scenarios
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: chaos-scenarios
+  namespace: ms5
+data:
+  scenario-1-cascade-failure.yaml: |
+    # Simulate cascade failure starting from database
+    steps:
+      - name: "Kill primary database"
+        type: pod-kill
+        target: postgres-primary
+        duration: 30s
+
+      - name: "Delay database failover"
+        type: network-delay
+        target: postgres-secondary
+        latency: 500ms
+        duration: 60s
+
+      - name: "Stress application services"
+        type: cpu-stress
+        target: [ms5-gateway, dms-service]
+        load: 90
+        duration: 120s
+
+      - name: "Verify recovery"
+        type: health-check
+        endpoints:
+          - http://ms5-gateway:3000/health
+          - http://dms-service:3001/health
+        expected: healthy
+        timeout: 300s
+
+  scenario-2-edge-disconnect.yaml: |
+    # Simulate edge site disconnection
+    steps:
+      - name: "Partition edge from cloud"
+        type: network-partition
+        source: edge-gateway
+        target: ms5-gateway
+        duration: 600s
+
+      - name: "Verify store-and-forward"
+        type: custom-check
+        script: |
+          # Check that edge is storing data locally
+          kubectl exec -n ms5 edge-gateway -- sqlite3 /data/journal.db \
+            "SELECT COUNT(*) FROM events WHERE synced = 0"
+
+      - name: "Restore connection"
+        type: network-restore
+        source: edge-gateway
+        target: ms5-gateway
+
+      - name: "Verify data sync"
+        type: custom-check
+        script: |
+          # Wait for sync and verify no data loss
+          sleep 60
+          kubectl exec -n ms5 edge-gateway -- sqlite3 /data/journal.db \
+            "SELECT COUNT(*) FROM events WHERE synced = 0"
+
+  scenario-3-kafka-chaos.yaml: |
+    # Test Kafka resilience
+    steps:
+      - name: "Kill Kafka leader"
+        type: pod-kill
+        target: kafka-0
+        duration: 0s
+
+      - name: "Stress remaining brokers"
+        type: cpu-stress
+        target: [kafka-1, kafka-2]
+        load: 80
+        duration: 120s
+
+      - name: "High volume publish"
+        type: custom-load
+        script: |
+          # Publish 10000 messages during chaos
+          for i in {1..10000}; do
+            echo "{\"id\":$i,\"timestamp\":\"$(date -u +"%Y-%m-%dT%H:%M:%SZ")\"}" | \
+              kubectl exec -n ms5 ms5-gateway -- npm run kafka:publish
+          done
+
+      - name: "Verify no message loss"
+        type: custom-check
+        script: |
+          # Check consumer lag and message count
+          kubectl exec -n kafka kafka-0 -- kafka-consumer-groups.sh \
+            --bootstrap-server localhost:9092 \
+            --describe --group ms5-consumer-group
+
+  scenario-4-multi-region-failure.yaml: |
+    # Simulate region failure for multi-region deployment
+    steps:
+      - name: "Fail primary region"
+        type: zone-failure
+        zone: europe-west1-a
+        duration: 300s
+
+      - name: "Verify failover to secondary"
+        type: endpoint-check
+        url: https://api-secondary.ms5.example.com/health
+        expected-status: 200
+
+      - name: "Test data consistency"
+        type: data-validation
+        query: |
+          SELECT COUNT(*) FROM actions WHERE created_at > NOW() - INTERVAL '5 minutes'
+        primary-region: europe-west1
+        secondary-region: europe-west2
+        expected: equal
+
+---
+# Chaos Experiment Validation
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: chaos-validation
+  namespace: ms5
+data:
+  validate.sh: |
+    #!/bin/bash
+    set -e
+
+    echo "Validating system resilience after chaos experiments..."
+
+    # Check service health
+    SERVICES=("ms5-gateway" "dms-service" "loss-analytics-service" "edge-gateway")
+    for service in "${SERVICES[@]}"; do
+      kubectl get pods -n ms5 -l app=$service --no-headers | \
+        awk '{print $3}' | grep -q "Running" || exit 1
+    done
+
+    # Check data integrity
+    kubectl exec -n ms5 postgres-0 -- psql -U ms5user -d ms5db -c \
+      "SELECT COUNT(*) FROM audit_logs WHERE hash_chain_valid = false" | \
+      grep -q "0" || exit 1
+
+    # Check message processing
+    kubectl exec -n kafka kafka-0 -- kafka-consumer-groups.sh \
+      --bootstrap-server localhost:9092 \
+      --describe --all-groups | \
+      grep -q "LAG: 0" || echo "Warning: Consumer lag detected"
+
+    # Check metrics
+    curl -s http://prometheus:9090/api/v1/query?query=up | \
+      jq '.data.result[] | select(.value[1] == "0")' | \
+      [ $(wc -l) -eq 0 ] || exit 1
+
+    echo "All validations passed!"

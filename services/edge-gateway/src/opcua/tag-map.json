@@ -1,0 +1,79 @@
+{
+  "version": "1.0.0",
+  "description": "OPC UA tag mapping configuration",
+  "tags": [
+    {
+      "nodeId": "ns=2;s=Line1.Asset1.OEE",
+      "assetId": "550e8400-e29b-41d4-a716-446655440001",
+      "metricName": "oee",
+      "unit": "%"
+    },
+    {
+      "nodeId": "ns=2;s=Line1.Asset1.Availability",
+      "assetId": "550e8400-e29b-41d4-a716-446655440001",
+      "metricName": "availability",
+      "unit": "%"
+    },
+    {
+      "nodeId": "ns=2;s=Line1.Asset1.Performance",
+      "assetId": "550e8400-e29b-41d4-a716-446655440001",
+      "metricName": "performance",
+      "unit": "%"
+    },
+    {
+      "nodeId": "ns=2;s=Line1.Asset1.Quality",
+      "assetId": "550e8400-e29b-41d4-a716-446655440001",
+      "metricName": "quality",
+      "unit": "%"
+    },
+    {
+      "nodeId": "ns=2;s=Line1.Asset1.GoodCount",
+      "assetId": "550e8400-e29b-41d4-a716-446655440001",
+      "metricName": "goodCount",
+      "unit": "units"
+    },
+    {
+      "nodeId": "ns=2;s=Line1.Asset1.RejectCount",
+      "assetId": "550e8400-e29b-41d4-a716-446655440001",
+      "metricName": "rejectCount",
+      "unit": "units"
+    },
+    {
+      "nodeId": "ns=2;s=Line1.Asset1.Temperature",
+      "assetId": "550e8400-e29b-41d4-a716-446655440001",
+      "metricName": "temperature",
+      "scaleFactor": 1.0,
+      "unit": "°C"
+    },
+    {
+      "nodeId": "ns=2;s=Line1.Asset1.Pressure",
+      "assetId": "550e8400-e29b-41d4-a716-446655440001",
+      "metricName": "pressure",
+      "scaleFactor": 0.1,
+      "unit": "bar"
+    },
+    {
+      "nodeId": "ns=2;s=Line1.Asset1.Vibration",
+      "assetId": "550e8400-e29b-41d4-a716-446655440001",
+      "metricName": "vibration",
+      "unit": "mm/s"
+    },
+    {
+      "nodeId": "ns=2;s=Line1.Asset1.Current",
+      "assetId": "550e8400-e29b-41d4-a716-446655440001",
+      "metricName": "current",
+      "unit": "A"
+    },
+    {
+      "nodeId": "ns=2;s=Line1.Asset1.Speed",
+      "assetId": "550e8400-e29b-41d4-a716-446655440001",
+      "metricName": "speed",
+      "unit": "rpm"
+    },
+    {
+      "nodeId": "ns=2;s=Line1.Asset1.Status",
+      "assetId": "550e8400-e29b-41d4-a716-446655440001",
+      "metricName": "status"
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "name": "@ms5/loss-analytics-service",
+  "version": "1.0.0",
+  "description": "Loss Analytics and OEE Service",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest watch",
+    "test:unit": "vitest run --dir tests/unit",
+    "test:contract": "vitest run --dir tests/contract",
+    "lint": "eslint src --ext .ts",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist .tsbuildinfo",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate deploy",
+    "prisma:seed": "tsx prisma/seed.ts",
+    "analytics:run": "cd pyjobs && python -m oee_calculator"
+  },
+  "dependencies": {
+    "@ms5/shared": "workspace:*",
+    "@prisma/client": "5.11.0",
+    "bull": "4.12.2",
+    "express": "4.19.2",
+    "express-async-errors": "3.1.1",
+    "ioredis": "5.3.2",
+    "kafkajs": "2.2.4",
+    "node-cron": "3.0.3",
+    "pg": "8.11.3",
+    "zod": "3.22.4"
+  },
+  "devDependencies": {
+    "@types/bull": "4.10.0",
+    "@types/express": "4.17.21",
+    "@types/node": "20.11.30",
+    "@types/node-cron": "3.0.11",
+    "@types/pg": "8.11.4",
+    "prisma": "5.11.0",
+    "supertest": "6.3.4",
+    "tsx": "4.7.1",
+    "vitest": "1.4.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

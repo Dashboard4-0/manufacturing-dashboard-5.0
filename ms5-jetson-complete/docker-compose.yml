@@ -1,0 +1,62 @@
+version: '3.3'
+
+services:
+  postgres:
+    image: postgres:12
+    container_name: ms5-postgres
+    environment:
+      POSTGRES_USER: ms5user
+      POSTGRES_PASSWORD: ms5secure2025
+      POSTGRES_DB: ms5db
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+      - ./config/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - '5432:5432'
+    restart: unless-stopped
+    networks:
+      - ms5-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: ms5-redis
+    volumes:
+      - ./data/redis:/data
+    ports:
+      - '6379:6379'
+    command: redis-server --maxmemory 1gb --maxmemory-policy allkeys-lru
+    restart: unless-stopped
+    networks:
+      - ms5-network
+
+  ms5-app:
+    image: node:20-slim
+    container_name: ms5-app
+    working_dir: /app
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      NODE_ENV: production
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ms5db
+      DB_USER: ms5user
+      DB_PASSWORD: ms5secure2025
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      PORT: 4000
+    ports:
+      - '4000:4000'
+      - '3000:3000'
+    volumes:
+      - ./app:/app
+      - ./data/logs:/var/log/ms5
+    command: sh -c "cd /app && npm install --production && node index.js"
+    restart: unless-stopped
+    networks:
+      - ms5-network
+
+networks:
+  ms5-network:
+    driver: bridge

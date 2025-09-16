@@ -1,0 +1,6 @@
+packages:
+  - "libs/*"
+  - "services/*"
+  - "apps/*"
+  - "simulators/*"
+  - "tests"

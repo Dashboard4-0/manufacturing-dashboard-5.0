@@ -1,0 +1,115 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ms5.0/schemas/kafka/telemetry.asset.event.v1.json",
+  "title": "Asset Telemetry Event",
+  "type": "object",
+  "required": ["eventId", "timestamp", "assetId", "type", "data"],
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique event identifier"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Event timestamp in ISO 8601 format"
+    },
+    "assetId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Asset identifier"
+    },
+    "lineId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Production line identifier"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["telemetry", "status", "alarm", "maintenance", "quality"],
+      "description": "Event type"
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["info", "warning", "critical"],
+      "default": "info"
+    },
+    "data": {
+      "type": "object",
+      "properties": {
+        "oee": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "availability": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "performance": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "quality": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "runtime": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Runtime in minutes"
+        },
+        "downtime": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Downtime in minutes"
+        },
+        "goodCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "rejectCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "temperature": {
+          "type": "number"
+        },
+        "pressure": {
+          "type": "number"
+        },
+        "vibration": {
+          "type": "number"
+        },
+        "current": {
+          "type": "number"
+        },
+        "speed": {
+          "type": "number"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["running", "idle", "stopped", "maintenance", "error"]
+        },
+        "errorCode": {
+          "type": "string"
+        },
+        "errorMessage": {
+          "type": "string"
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "correlationId": {
+      "type": "string",
+      "description": "Correlation ID for tracing"
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "name": "@ms5/dms-service",
+  "version": "1.0.0",
+  "description": "Daily Management System Service",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest watch",
+    "test:unit": "vitest run --dir tests/unit",
+    "test:contract": "vitest run --dir tests/contract",
+    "lint": "eslint src --ext .ts",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist .tsbuildinfo",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate deploy",
+    "prisma:seed": "tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@ms5/shared": "workspace:*",
+    "@prisma/client": "5.11.0",
+    "express": "4.19.2",
+    "express-async-errors": "3.1.1",
+    "ioredis": "5.3.2",
+    "kafkajs": "2.2.4",
+    "zod": "3.22.4"
+  },
+  "devDependencies": {
+    "@types/express": "4.17.21",
+    "@types/node": "20.11.30",
+    "prisma": "5.11.0",
+    "supertest": "6.3.4",
+    "tsx": "4.7.1",
+    "vitest": "1.4.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

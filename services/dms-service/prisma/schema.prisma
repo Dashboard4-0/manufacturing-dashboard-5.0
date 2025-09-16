@@ -1,0 +1,152 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model TierBoard {
+  id        String   @id @default(uuid())
+  lineId    String
+  date      DateTime @db.Date
+  shift     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+
+  actions Action[]
+  kpis    KPI[]
+
+  @@unique([lineId, date, shift])
+  @@index([lineId])
+  @@index([date])
+}
+
+model Action {
+  id                   String   @id @default(uuid())
+  tierBoardId          String?
+  type                 String // SAFETY, QUALITY, DELIVERY, COST, PEOPLE
+  category             String
+  description          String
+  owner                String
+  assignee             String
+  dueDate              DateTime
+  priority             String   @default("MEDIUM") // LOW, MEDIUM, HIGH, CRITICAL
+  status               String   @default("OPEN") // OPEN, IN_PROGRESS, COMPLETED, OVERDUE, CANCELLED
+  progress             Int      @default(0)
+  lineId               String
+  areaId               String?
+  relatedAssetId       String?
+  estimatedEffort      Float?
+  actualEffort         Float?
+  resolution           String?
+  actualCompletionDate DateTime?
+  completedBy          String?
+  tags                 String[]
+  notes                String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  createdBy            String?
+  updatedBy            String?
+
+  tierBoard TierBoard? @relation(fields: [tierBoardId], references: [id])
+
+  @@index([tierBoardId])
+  @@index([lineId])
+  @@index([status])
+  @@index([dueDate])
+  @@index([assignee])
+}
+
+model KPI {
+  id          String   @id @default(uuid())
+  tierBoardId String
+  name        String
+  value       Float
+  target      Float
+  unit        String?
+  category    String // SAFETY, QUALITY, DELIVERY, COST, PEOPLE
+  trend       Float[] // Array of historical values
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tierBoard TierBoard @relation(fields: [tierBoardId], references: [id])
+
+  @@index([tierBoardId])
+  @@index([category])
+}
+
+model Problem {
+  id               String   @id @default(uuid())
+  title            String
+  description      String
+  status           String   @default("OPEN") // OPEN, INVESTIGATING, ROOT_CAUSE_IDENTIFIED, COUNTERMEASURE_IMPLEMENTED, VERIFIED, CLOSED
+  priority         String   @default("MEDIUM")
+  lineId           String
+  areaId           String?
+  relatedAssetId   String?
+  reportedBy       String
+  assignedTo       String?
+  occurredAt       DateTime
+  detectedAt       DateTime
+  impactLevel      String // LOW, MEDIUM, HIGH, CRITICAL
+  impactCost       Float?
+  recurrenceCount  Int      @default(0)
+  category         String // QUALITY, EQUIPMENT, PROCESS, SAFETY, OTHER
+  tags             String[]
+  attachments      String[]
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  createdBy        String?
+  updatedBy        String?
+
+  rootCauses      RootCause[]
+  countermeasures Countermeasure[]
+
+  @@index([lineId])
+  @@index([status])
+  @@index([assignedTo])
+}
+
+model RootCause {
+  id             String   @id @default(uuid())
+  problemId      String
+  category       String // MAN, MACHINE, METHOD, MATERIAL, MEASUREMENT, ENVIRONMENT
+  description    String
+  whyAnalysis    Json // 5 Whys analysis structure
+  fishboneBranch String?
+  verifiedBy     String?
+  verifiedAt     DateTime?
+  createdAt      DateTime @default(now())
+  createdBy      String?
+
+  problem Problem @relation(fields: [problemId], references: [id])
+
+  @@index([problemId])
+}
+
+model Countermeasure {
+  id               String    @id @default(uuid())
+  problemId        String
+  rootCauseId      String?
+  type             String // IMMEDIATE, PERMANENT, PREVENTIVE
+  description      String
+  owner            String
+  implementationDue DateTime
+  implementedAt    DateTime?
+  effectiveness    String? // NOT_EVALUATED, EFFECTIVE, PARTIALLY_EFFECTIVE, NOT_EFFECTIVE
+  evaluatedAt      DateTime?
+  evaluatedBy      String?
+  cost             Float?
+  status           String    @default("PLANNED") // PLANNED, IN_PROGRESS, IMPLEMENTED, VERIFIED
+  createdAt        DateTime  @default(now())
+  createdBy        String?
+
+  problem Problem @relation(fields: [problemId], references: [id])
+
+  @@index([problemId])
+  @@index([status])
+}

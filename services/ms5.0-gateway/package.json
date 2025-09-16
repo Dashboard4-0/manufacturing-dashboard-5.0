@@ -1,0 +1,51 @@
+{
+  "name": "@ms5/gateway",
+  "version": "1.0.0",
+  "description": "MS5.0 API Gateway - GraphQL and REST aggregation",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest watch",
+    "test:unit": "vitest run --dir tests/unit",
+    "test:contract": "vitest run --dir tests/contract",
+    "lint": "eslint src --ext .ts",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist .tsbuildinfo",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate deploy"
+  },
+  "dependencies": {
+    "@apollo/server": "4.10.2",
+    "@graphql-tools/schema": "10.0.3",
+    "@graphql-tools/stitch": "9.0.4",
+    "@ms5/shared": "workspace:*",
+    "@prisma/client": "5.11.0",
+    "cors": "2.8.5",
+    "dataloader": "2.2.2",
+    "express": "4.19.2",
+    "express-rate-limit": "7.2.0",
+    "graphql": "16.8.1",
+    "graphql-scalars": "1.22.5",
+    "graphql-shield": "7.6.5",
+    "helmet": "7.1.0",
+    "http-proxy-middleware": "2.0.6",
+    "ioredis": "5.3.2",
+    "ws": "8.16.0"
+  },
+  "devDependencies": {
+    "@types/cors": "2.8.17",
+    "@types/express": "4.17.21",
+    "@types/node": "20.11.30",
+    "@types/ws": "8.5.10",
+    "prisma": "5.11.0",
+    "supertest": "6.3.4",
+    "tsx": "4.7.1",
+    "vitest": "1.4.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "name": "@ms5/web",
+  "version": "1.0.0",
+  "description": "MS5.0 Web Application - React SPA with PWA support",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest watch",
+    "test:e2e": "playwright test",
+    "lint": "eslint src --ext .ts,.tsx",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@apollo/client": "3.9.5",
+    "@tanstack/react-query": "5.28.4",
+    "@tanstack/react-table": "8.13.2",
+    "axios": "1.6.7",
+    "chart.js": "4.4.2",
+    "date-fns": "3.3.1",
+    "graphql": "16.8.1",
+    "i18next": "23.10.1",
+    "react": "18.2.0",
+    "react-chartjs-2": "5.2.0",
+    "react-dom": "18.2.0",
+    "react-hook-form": "7.51.0",
+    "react-i18next": "14.1.0",
+    "react-router-dom": "6.22.3",
+    "socket.io-client": "4.7.4",
+    "workbox-window": "7.0.0",
+    "zod": "3.22.4",
+    "zustand": "4.5.2"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.42.1",
+    "@types/node": "20.11.30",
+    "@types/react": "18.2.66",
+    "@types/react-dom": "18.2.22",
+    "@typescript-eslint/eslint-plugin": "7.3.1",
+    "@typescript-eslint/parser": "7.3.1",
+    "@vitejs/plugin-react": "4.2.1",
+    "@vitest/ui": "1.4.0",
+    "autoprefixer": "10.4.18",
+    "eslint": "8.57.0",
+    "eslint-plugin-react": "7.34.1",
+    "eslint-plugin-react-hooks": "4.6.0",
+    "postcss": "8.4.35",
+    "tailwindcss": "3.4.1",
+    "typescript": "5.4.3",
+    "vite": "5.1.6",
+    "vite-plugin-pwa": "0.19.0",
+    "vitest": "1.4.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

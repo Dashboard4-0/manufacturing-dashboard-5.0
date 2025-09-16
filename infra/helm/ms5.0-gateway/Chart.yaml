@@ -1,0 +1,14 @@
+apiVersion: v2
+name: ms5-gateway
+description: MS5.0 API Gateway Service
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+keywords:
+  - gateway
+  - graphql
+  - api
+maintainers:
+  - name: MS5 Team
+    email: ms5-team@example.com
+dependencies: []

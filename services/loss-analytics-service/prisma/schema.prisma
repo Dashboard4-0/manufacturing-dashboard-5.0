@@ -1,0 +1,133 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Telemetry {
+  id          String   @id @default(uuid())
+  assetId     String
+  lineId      String
+  timestamp   DateTime
+  oee         Float?
+  availability Float?
+  performance Float?
+  quality     Float?
+  runtime     Float? // minutes
+  downtime    Float? // minutes
+  goodCount   Int?
+  rejectCount Int?
+  totalCount  Int?
+  temperature Float?
+  pressure    Float?
+  vibration   Float?
+  current     Float?
+  speed       Float?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  @@index([assetId, timestamp])
+  @@index([lineId, timestamp])
+  @@index([timestamp])
+}
+
+model OEECalculation {
+  id                     String   @id @default(uuid())
+  assetId                String
+  lineId                 String
+  timestamp              DateTime
+  oee                    Float
+  availability           Float
+  performance            Float
+  quality                Float
+  plannedProductionTime  Float // minutes
+  runtime                Float // minutes
+  downtime               Float // minutes
+  idealCycleTime         Float // minutes per unit
+  totalCount             Int
+  goodCount              Int
+  rejectCount            Int
+  createdAt              DateTime @default(now())
+
+  @@index([assetId, timestamp])
+  @@index([lineId, timestamp])
+  @@index([timestamp])
+}
+
+model Loss {
+  id           String   @id @default(uuid())
+  lineId       String
+  assetId      String?
+  timestamp    DateTime
+  category     String // AVAILABILITY, PERFORMANCE, QUALITY
+  subcategory  String // BREAKDOWN, SETUP, MINOR_STOPS, SPEED_LOSS, DEFECTS, REWORK
+  reason       String
+  duration     Float // minutes
+  impact       Float // units or cost
+  shiftId      String?
+  operatorId   String?
+  productId    String?
+  orderId      String?
+  rootCauseId  String?
+  metadata     Json?
+  createdAt    DateTime @default(now())
+
+  @@index([lineId, timestamp])
+  @@index([category])
+  @@index([subcategory])
+  @@index([timestamp])
+}
+
+model LossAnalysis {
+  id            String   @id @default(uuid())
+  lineId        String
+  periodStart   DateTime
+  periodEnd     DateTime
+  totalLoss     Float // total loss in OEE points
+  availabilityLoss Float
+  performanceLoss  Float
+  qualityLoss      Float
+  topLosses     Json // Array of top loss reasons with Pareto analysis
+  recommendations Json // AI-generated recommendations
+  createdAt     DateTime @default(now())
+
+  @@index([lineId, periodStart])
+}
+
+model Target {
+  id          String   @id @default(uuid())
+  lineId      String
+  assetId     String?
+  metricType  String // OEE, AVAILABILITY, PERFORMANCE, QUALITY
+  targetValue Float
+  actualValue Float?
+  period      String // SHIFT, DAY, WEEK, MONTH
+  startDate   DateTime
+  endDate     DateTime
+  status      String // ON_TRACK, AT_RISK, BEHIND
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([lineId, metricType, period, startDate])
+  @@index([lineId])
+  @@index([status])
+}
+
+model Benchmark {
+  id         String   @id @default(uuid())
+  industry   String
+  process    String
+  metric     String
+  value      Float
+  percentile Int // 25th, 50th, 75th, 90th percentile
+  source     String
+  year       Int
+  notes      String?
+  createdAt  DateTime @default(now())
+
+  @@index([industry, process])
+  @@index([metric])
+}

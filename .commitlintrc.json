@@ -1,0 +1,46 @@
+{
+  "extends": ["@commitlint/config-conventional"],
+  "rules": {
+    "type-enum": [
+      2,
+      "always",
+      ["feat", "fix", "docs", "style", "refactor", "perf", "test", "build", "ci", "chore", "revert"]
+    ],
+    "scope-enum": [
+      2,
+      "always",
+      [
+        "gateway",
+        "dms",
+        "analytics",
+        "operator",
+        "maintenance",
+        "centerline",
+        "quality",
+        "assets",
+        "standard-work",
+        "problem",
+        "andon",
+        "handover",
+        "safety",
+        "skills",
+        "energy",
+        "compliance",
+        "master-data",
+        "integration",
+        "governance",
+        "edge",
+        "web",
+        "mobile",
+        "shared",
+        "infra",
+        "ci",
+        "docs"
+      ]
+    ],
+    "subject-case": [2, "always", "sentence-case"],
+    "header-max-length": [2, "always", 100],
+    "body-max-line-length": [2, "always", 100],
+    "footer-max-line-length": [2, "always", 100]
+  }
+}
