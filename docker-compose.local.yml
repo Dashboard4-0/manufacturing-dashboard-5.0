@@ -1,0 +1,33 @@
+version: '3.3'
+
+services:
+  # PostgreSQL only
+  postgres:
+    image: postgres:14
+    container_name: ms5-postgres
+    environment:
+      POSTGRES_USER: ms5user
+      POSTGRES_PASSWORD: ms5pass
+      POSTGRES_DB: ms5db
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./init-local.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ms5user -d ms5db']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    container_name: ms5-redis
+    ports:
+      - '6379:6379'
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5

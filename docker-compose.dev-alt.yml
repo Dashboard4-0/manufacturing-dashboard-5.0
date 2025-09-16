@@ -1,0 +1,33 @@
+version: '3.3'
+
+services:
+  # PostgreSQL with alternative port
+  postgres:
+    image: postgres:14
+    container_name: ms5-postgres-dev
+    environment:
+      POSTGRES_USER: ms5user
+      POSTGRES_PASSWORD: ms5pass
+      POSTGRES_DB: ms5db
+    ports:
+      - '5433:5432' # Alternative port to avoid conflicts
+    volumes:
+      - ./init-local.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ms5user -d ms5db']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis with alternative port
+  redis:
+    image: redis:7-alpine
+    container_name: ms5-redis-dev
+    ports:
+      - '6380:6379' # Alternative port to avoid conflicts
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5

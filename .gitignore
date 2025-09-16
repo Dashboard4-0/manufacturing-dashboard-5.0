@@ -155,3 +155,9 @@ traceability-report.html
 Claude.pdf
 *.zip
 node_modules/
+
+# Large archive files
+*.tar
+*.tar.gz
+ms5-jetson-offline.tar.gz
+ms5-jetson-complete/docker/*.tar
